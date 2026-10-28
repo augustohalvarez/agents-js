@@ -20,6 +20,16 @@ export function logsHandledBySidecar(): boolean {
   return path !== undefined && existsSync(path);
 }
 
+export function handOffLogsToSidecarAtStartup(): void {
+  const path = handoffFile();
+  if (path === undefined) {
+    return;
+  }
+  try {
+    closeSync(openSync(path, 'a'));
+  } catch {}
+}
+
 export function handOffLogsToSidecar(): void {
   const path = handoffFile();
   if (path === undefined) {

@@ -11,6 +11,7 @@ import {
   HOSTED_LOGS_HANDOFF_FILE_ENV,
   HOSTED_LOGS_SIDECAR,
   handOffLogsToSidecar,
+  handOffLogsToSidecarAtStartup,
   logsHandledBySidecar,
 } from './hosted_logs.js';
 
@@ -64,6 +65,17 @@ describe('hosted log sidecar hand-off', () => {
   it('keeps exporting when the file cannot be created', () => {
     vi.stubEnv(HOSTED_LOGS_HANDOFF_FILE_ENV, join(dir, 'missing-dir', 'sdk-handoff'));
     handOffLogsToSidecar();
+    expect(logsHandledBySidecar()).toBe(false);
+  });
+
+  it('creates the file at startup', () => {
+    handOffLogsToSidecarAtStartup();
+    expect(existsSync(handoffFile)).toBe(true);
+  });
+
+  it('does not throw at startup when the file cannot be created', () => {
+    vi.stubEnv(HOSTED_LOGS_HANDOFF_FILE_ENV, join(dir, 'missing-dir', 'sdk-handoff'));
+    expect(() => handOffLogsToSidecarAtStartup()).not.toThrow();
     expect(logsHandledBySidecar()).toBe(false);
   });
 });
